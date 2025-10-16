@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vibe Sphere</title>
+  <meta name="description" content="Собери свою вайб-сферу из эмодзи и цветов" />
+  <style>
+    :root {
+      --bg: #0f1216;
+      --panel: #151a21;
+      --text: #e6edf3;
+      --sub: #a2b0bf;
+      --accent: #7b5cff;
+      --ok: #2ecc71;
+      --bad: #ff5c7a;
+      --ring: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box }
+    html, body { height: 100% }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(123,92,255,0.2), transparent 50%),
+                  radial-gradient(1200px 800px at 80% 20%, rgba(0,255,200,0.15), transparent 50%),
+                  var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+    header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .logo {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: linear-gradient(135deg, #7b5cff, #00e5ff);
+      display: grid; place-items: center; font-size: 22px;
+      box-shadow: 0 8px 30px rgba(123,92,255,0.35);
+    }
+    h1 { font-size: 22px; margin: 0 }
+    .sub { color: var(--sub); margin-top: 4px; font-size: 14px }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--ring);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .cat { margin-bottom: 10px }
+    .cat h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #d9e0e7;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .items { display: flex; flex-wrap: wrap; gap: 8px }
+    .item {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #0f141b;
+      border: 1px solid var(--ring);
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+      transition: transform .05s ease, border-color .1s ease, background .1s ease;
+      font-size: 14px;
+    }
+    .item:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.16) }
+    .item .emo { font-size: 18px }
+    .item.selected {
+      outline: none;
+      border-color: rgba(255,255,255,0.22);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+    }
+    button.btn {
+      padding: 10px 14px;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      background: #0f141b;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button.btn.primary {
+      background: linear-gradient(135deg, #7b5cff, #00e5ff);
+      border: none; color: #0b0f14; font-weight: 600;
+    }
+    button.btn:disabled { opacity: .5; cursor: not-allowed }
+    .hint { color: var(--sub); font-size: 13px; margin-top: 6px }
+    /* Sphere */
+    .sphere-card {
+      display: grid; gap: 12px;
+    }
+    .sphere {
+      width: 100%; aspect-ratio: 1/1;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #243244, #243244);
+      position: relative;
+      border: 1px solid var(--ring);
+      box-shadow: inset 0 -40px 80px rgba(0,0,0,0.45),
+                  inset 0 40px 120px rgba(255,255,255,0.06),
+                  0 30px 80px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+    .sphere::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(180px 120px at 25% 20%, rgba(255,255,255,0.28), transparent 60%),
+                  radial-gradient(220px 160px at 70% 75%, rgba(255,255,255,0.10), transparent 60%);
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+    .legend {
+      background: #0f141b; border: 1px solid var(--ring); border-radius: 10px; padding: 10px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px }
+    .chip {
+      font-size: 13px; color: #d9e0e7;
+      padding: 6px 8px; border-radius: 999px;
+      background: #0c1117; border: 1px solid var(--ring);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .desc { color: var(--sub); font-size: 14px; line-height: 1.5; margin-top: 8px; white-space: pre-wrap }
+    .toast {
+      position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+      background: #0f141b; border: 1px solid var(--ring); color: var(--text);
+      padding: 10px 12px; border-radius: 10px; font-size: 14px;
+      opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px) }
+    a.small { color: #7b9cff; text-decoration: none; font-size: 13px }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">✨</div>
+      <div>
+        <h1>Vibe Sphere</h1>
+        <div class="sub">Выбирай штуки — собирай свою «сферу» из цветов и настроений. Потом поделись ссылкой.</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <div id="cats"></div>
+        <div class="controls">
+          <button id="buildBtn" class="btn primary">Собрать сферу</button>
+          <button id="clearBtn" class="btn">Очистить выбор</button>
+          <button id="shareBtn" class="btn">Поделиться ссылкой</button>
+        </div>
+        <div class="hint">Совет: выбери 3–8 элементов, будет красивее.</div>
+      </section>
+
+      <aside class="panel sphere-card">
+        <div class="sphere" id="sphere"></div>
+        <div class="legend">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px">
+            <strong>Твой микс</strong>
+            <a id="resetLink" class="small" href="#">сбросить</a>
+          </div>
+          <div id="chips" class="chips"></div>
+          <div id="desc" class="desc">Пока пусто. Выбери элементы слева и нажми «Собрать сферу».</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Скопировано</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
